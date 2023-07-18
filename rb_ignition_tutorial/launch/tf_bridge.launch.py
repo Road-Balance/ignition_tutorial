@@ -22,14 +22,12 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-
     pkg_ros_gz_sim_demos = get_package_share_directory('ros_gz_sim_demos')
-    
     return LaunchDescription([
         # Launch gazebo
         ExecuteProcess(
             cmd=[
-                'gz', 'sim', '-r',
+                'ign', 'gazebo', '-r',
                 os.path.join(
                     pkg_ros_gz_sim_demos,
                     'models',
