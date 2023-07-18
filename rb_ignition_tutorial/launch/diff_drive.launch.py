@@ -30,6 +30,7 @@ def generate_launch_description():
 
     pkg_ros_gz_sim_demos = get_package_share_directory('ros_gz_sim_demos')
     pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
+    pkg_path = get_package_share_directory('rb_ignition_tutorial')
 
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -43,7 +44,7 @@ def generate_launch_description():
     rviz = Node(
        package='rviz2',
        executable='rviz2',
-       arguments=['-d', os.path.join(pkg_ros_gz_sim_demos, 'rviz', 'diff_drive.rviz')],
+       arguments=['-d', os.path.join(pkg_path, 'rviz', 'diff_drive.rviz')],
        condition=IfCondition(LaunchConfiguration('rviz'))
     )
 
@@ -51,10 +52,10 @@ def generate_launch_description():
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        arguments=['/model/vehicle_blue/cmd_vel@geometry_msgs/msg/Twist@ignition.msgs.Twist',
-                   '/model/vehicle_blue/odometry@nav_msgs/msg/Odometry@ignition.msgs.Odometry',
-                   '/model/vehicle_green/cmd_vel@geometry_msgs/msg/Twist@ignition.msgs.Twist',
-                   '/model/vehicle_green/odometry@nav_msgs/msg/Odometry@ignition.msgs.Odometry'],
+        arguments=['/model/vehicle_blue/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
+                   '/model/vehicle_blue/odometry@nav_msgs/msg/Odometry@gz.msgs.Odometry',
+                   '/model/vehicle_green/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
+                   '/model/vehicle_green/odometry@nav_msgs/msg/Odometry@gz.msgs.Odometry'],
         parameters=[{'qos_overrides./model/vehicle_blue.subscriber.reliability': 'reliable',
                      'qos_overrides./model/vehicle_green.subscriber.reliability': 'reliable'}],
         output='screen'

@@ -53,10 +53,10 @@ def generate_launch_description():
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
-            '/camera@sensor_msgs/msg/Image@ignition.msgs.Image',
-            '/depth_camera@sensor_msgs/msg/Image@ignition.msgs.Image',
-            '/rgbd_camera/depth_image@sensor_msgs/msg/Image@ignition.msgs.Image',
-            '/rgbd_camera/image@sensor_msgs/msg/Image@ignition.msgs.Image',
+            '/camera@sensor_msgs/msg/Image@gz.msgs.Image',
+            '/depth_camera@sensor_msgs/msg/Image@gz.msgs.Image',
+            '/rgbd_camera/depth_image@sensor_msgs/msg/Image@gz.msgs.Image',
+            '/rgbd_camera/image@sensor_msgs/msg/Image@gz.msgs.Image',
         ],
         output='screen'
     )
