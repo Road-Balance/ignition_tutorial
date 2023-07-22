@@ -6,7 +6,7 @@ ROS 2 Humble + Gazebo Garden Tutorial
 ```
 sudo apt install ros-humble-turtlebot4-ignition-bringup -y
 sudo apt install ros-humble-diff-drive-controller -y
-
+sudo apt install ros-humble-ros2-control -y
 ```
 
 ```
@@ -31,4 +31,9 @@ ros2 launch rb_ignition_tutorial robot_description_publisher.launch.py
 ros2 launch rb_ignition_tutorial tf_bridge.launch.py 
 ```
 
-* 
+* ROS 2 Control Demo
+
+```
+ros2 launch robot_demo_description diffbot_desc.launch.py 
+
+```
