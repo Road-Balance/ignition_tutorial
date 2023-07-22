@@ -1,8 +1,10 @@
 # ignition_tutorial
 ROS 2 Humble + Gazebo Garden Tutorial 
 
-```
+* Install Dependencies
 
+```
+sudo apt install ros-humble-turtlebot4-ignition-bringup -y
 ```
 
 ```
@@ -26,3 +28,5 @@ ros2 launch rb_ignition_tutorial robot_description_publisher.launch.py
 
 ros2 launch rb_ignition_tutorial tf_bridge.launch.py 
 ```
+
+* 

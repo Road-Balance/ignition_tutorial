@@ -93,13 +93,13 @@ def generate_launch_description():
         ],
         remappings=[
             ('/world/default/model/bcr_bot/joint_state', 'bcr_bot/joint_states'),
-            ('/odom', 'bcr_bot/odom'),
-            ('/scan', 'bcr_bot/scan'),
-            ('/kinect_camera', 'bcr_bot/kinect_camera'),
-            ('/imu', 'bcr_bot/imu'),
-            ('/cmd_vel', 'bcr_bot/cmd_vel'),
-            ('/camera_info', 'bcr_bot/camera_info'),
-            ('/kinect_camera/points', 'bcr_bot/kinect_camera/points'),
+            # ('/odom', 'bcr_bot/odom'),
+            # ('/scan', 'bcr_bot/scan'),
+            # ('/kinect_camera', 'bcr_bot/kinect_camera'),
+            # ('/imu', 'bcr_bot/imu'),
+            # ('/cmd_vel', 'bcr_bot/cmd_vel'),
+            # ('/camera_info', 'bcr_bot/camera_info'),
+            # ('/kinect_camera/points', 'bcr_bot/kinect_camera/points'),
         ]
     )
 
@@ -116,6 +116,14 @@ def generate_launch_description():
                     "--child-frame-id", "bcr_bot/base_link/kinect_camera"]
     )
 
+    # rqt robot steering
+    rqt_robot_steering = Node(
+        package='rqt_robot_steering',
+        executable='rqt_robot_steering',
+        name='rqt_robot_steering',
+        output='screen'
+    )
+
     return LaunchDescription([
         DeclareLaunchArgument("use_sim_time", default_value=use_sim_time),
         DeclareLaunchArgument("world_file", default_value=world_file),
@@ -126,5 +134,6 @@ def generate_launch_description():
         DeclareLaunchArgument("orientation_yaw", default_value="0.0"),        
         robot_state_publisher,
         gz_sim, gz_spawn_entity, gz_ros2_bridge,
-        transform_publisher
+        transform_publisher,
+        rqt_robot_steering,
     ])
