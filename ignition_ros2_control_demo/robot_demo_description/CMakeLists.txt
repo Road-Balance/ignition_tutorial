@@ -25,6 +25,7 @@ endif()
 
 install(
   DIRECTORY
+    ros2_control
     launch
     urdf
     rviz

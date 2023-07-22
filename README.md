@@ -5,6 +5,8 @@ ROS 2 Humble + Gazebo Garden Tutorial
 
 ```
 sudo apt install ros-humble-turtlebot4-ignition-bringup -y
+sudo apt install ros-humble-diff-drive-controller -y
+
 ```
 
 ```

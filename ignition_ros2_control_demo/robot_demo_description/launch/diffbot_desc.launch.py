@@ -30,7 +30,7 @@ from launch.substitutions import (
 def generate_launch_description():
 
     pkg_path = os.path.join(get_package_share_directory("robot_demo_description"))
-    # rviz_config_file = os.path.join(pkg_path, "rviz", "description.rviz")
+    rviz_config_file = os.path.join(pkg_path, "rviz", "desc.rviz")
 
     joint_state_publisher_gui = Node(
         package="joint_state_publisher_gui",
@@ -44,7 +44,7 @@ def generate_launch_description():
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare(pkg_path), "urdf", "diffbot.urdf.xacro"]
+                [FindPackageShare("robot_demo_description"), "urdf", "diffbot.urdf.xacro"]
             ),
             " ",
             "prefix:=",
@@ -54,28 +54,29 @@ def generate_launch_description():
     robot_description = {"robot_description": robot_description_content}
 
     # Launch Robot State Publisher
-    robot_state_publisher = Node(
+    robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        output="both",
+        name='robot_state_publisher',
+        output="screen",
         parameters=[robot_description],
     )
 
-    # # Launch RViz
-    # rviz2 = Node(
-    #     package="rviz2",
-    #     executable="rviz2",
-    #     name="rviz2",
-    #     output="screen",
-    #     arguments=["-d", rviz_config_file],
-    # )
+    # Launch RViz
+    rviz2 = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="screen",
+        arguments=["-d", rviz_config_file],
+    )
 
     return LaunchDescription([
-        # TimerAction(
-        #     period=3.0,
-        #     actions=[rviz2]
-        # ),
+        TimerAction(
+            period=3.0,
+            actions=[rviz2]
+        ),
 
-        robot_state_publisher,
-        # joint_state_publisher_gui,
+        robot_state_publisher_node,
+        joint_state_publisher_gui,
     ])
