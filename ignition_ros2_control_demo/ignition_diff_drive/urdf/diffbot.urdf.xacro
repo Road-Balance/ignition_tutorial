@@ -1,0 +1,187 @@
+<?xml version="1.0" ?>
+<robot name="road100" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find road100_ignition)/urdf/materials.xacro"/>
+  <xacro:include filename="$(find road100_ignition)/urdf/gz.xacro"/>
+
+  <link name="base_footprint" />
+
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+      <mass value="5.0"/>
+      <inertia ixx="1.0577083333333335" iyy="1.5268854166666668" izz="2.010510416666667" ixy="0.0" iyz="0.0" ixz="0.0"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find road100_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="dark_grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find road100_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="left_wheel_set">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find road100_description)/meshes/left_wheel_set.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="left_wheel_set_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_wheel_set"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="right_wheel_set">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find road100_description)/meshes/right_wheel_set.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="right_wheel_set_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_wheel_set"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+<!-- ....................wheel start ..................... -->
+
+  <link name="left_front_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000045"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="0.0165" radius="0.03"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_front_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_front_wheel"/>
+    <origin xyz="0.0395 0.08 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0" />
+    <limit effort="10" velocity="100" />
+  </joint>
+
+  <link name="right_front_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000045"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="0.0165" radius="0.03"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_front_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_front_wheel"/>
+    <origin xyz="0.0395 -0.08 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0" />
+    <limit effort="10" velocity="100" />
+  </joint>
+
+  <link name="left_rear_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000045"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="0.0165" radius="0.03"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="left_rear_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_rear_wheel"/>
+    <origin xyz="-0.0395 0.08 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0" />
+    <limit effort="10" velocity="100" />
+  </joint>
+
+  <link name="right_rear_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.000025" ixy="0" ixz="0" iyy="0.000025" iyz="0" izz="0.000045"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder length="0.0165" radius="0.03"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="right_rear_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_rear_wheel"/>
+    <origin xyz="-0.0395 -0.08 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0" />
+    <limit effort="10" velocity="100" />
+  </joint>
+
+  <link name="lidar_link">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.00004" ixy="0" ixz="0" iyy="0.00004" iyz="0" izz="0.00004"/>
+    </inertial>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="lidar_joint" type="fixed">
+    <origin xyz="0 0 0.083" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+  </joint>
+
+  <link name="camera_link">
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.00004" ixy="0" ixz="0" iyy="0.00004" iyz="0" izz="0.00004"/>
+    </inertial>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="camera_joint" type="fixed">
+    <origin xyz="0.08 0 0.045" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+  </joint>
+
+</robot>
