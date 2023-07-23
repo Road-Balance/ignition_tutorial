@@ -109,6 +109,10 @@ protected:
     const std::string & side, const std::vector<std::string> & wheel_names,
     std::vector<WheelHandle> & registered_handles);
 
+  controller_interface::CallbackReturn configure_hinge(
+    const std::string & side, const std::vector<std::string> & wheel_names,
+    std::vector<SteeringHandle> & registered_handles);
+
   // std::vector<WheelHandle> registered_left_wheel_handles_;
   std::vector<WheelHandle> registered_front_wheel_handles_;
   // std::vector<WheelHandle> registered_right_wheel_handles_;

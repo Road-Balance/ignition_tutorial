@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="quadbot_ros2_control" params="name prefix">
+
+    <gazebo>
+      <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+        <parameters>$(find ignition_quad_drive)/config/quadbot.yaml</parameters>
+      </plugin>
+    </gazebo>
+
+    <ros2_control name="IgnitionSystem" type="system">
+      <hardware>
+          <plugin>ign_ros2_control/IgnitionSystem</plugin>
+      </hardware>
+
+      <xacro:macro name="configure_joint" params="joint_name">
+        <joint name="${joint_name}">
+          <command_interface name="velocity">
+            <param name="min">-1</param>
+            <param name="max">1</param>
+          </command_interface>
+          <state_interface name="position"/>
+          <state_interface name="velocity"/>
+        </joint>
+      </xacro:macro>
+
+      <xacro:macro name="configure_hinge_joint" params="joint_name">
+        <joint name="${joint_name}">
+          <command_interface name="position">
+            <param name="min">-1.5707</param>
+            <param name="max">1.5707</param>
+          </command_interface>
+          <state_interface name="position" />
+        </joint>
+      </xacro:macro>
+
+      <xacro:configure_joint joint_name="${prefix}front_wheel_joint"/>
+      <xacro:configure_joint joint_name="${prefix}rear_wheel_joint"/>
+      
+      <xacro:configure_hinge_joint joint_name="${prefix}front_wheel_hinge_joint"/>
+      <xacro:configure_hinge_joint joint_name="${prefix}rear_wheel_hinge_joint"/>
+    </ros2_control>
+    
+  </xacro:macro>
+</robot>

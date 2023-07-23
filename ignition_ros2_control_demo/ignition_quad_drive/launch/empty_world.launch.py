@@ -74,17 +74,17 @@ def generate_launch_description():
     )
 
     # ROS 2 controller
-    # load_joint_state_controller = ExecuteProcess(
-    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-    #          'joint_state_broadcaster'],
-    #     output='screen'
-    # )
+    load_joint_state_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+             'joint_state_broadcaster'],
+        output='screen'
+    )
 
-    # load_diff_drive_controller = ExecuteProcess(
-    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-    #          'diff_drive_base_controller'],
-    #     output='screen'
-    # )
+    load_quad_drive_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+             'quad_drive_controller'],
+        output='screen'
+    )
 
     gz_ros2_bridge = Node(
         package='ros_gz_bridge',
@@ -101,20 +101,20 @@ def generate_launch_description():
         gazebo,
         robot_state_publisher,
         gz_spawn_entity,
-        gz_ros2_bridge,
+        # gz_ros2_bridge,
 
-        # RegisterEventHandler(
-        #     event_handler=OnProcessExit(
-        #         target_action=gz_spawn_entity,
-        #         on_exit=[load_joint_state_controller],
-        #     )
-        # ),
-        # RegisterEventHandler(
-        #     event_handler=OnProcessExit(
-        #         target_action=load_joint_state_controller,
-        #         on_exit=[load_diff_drive_controller],
-        #     )
-        # ),
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=gz_spawn_entity,
+                on_exit=[load_joint_state_controller],
+            )
+        ),
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=load_joint_state_controller,
+                on_exit=[load_quad_drive_controller],
+            )
+        ),
         # rqt_robot_steering,
         # rviz,
     ])

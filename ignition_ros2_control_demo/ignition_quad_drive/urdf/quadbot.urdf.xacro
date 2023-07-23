@@ -9,10 +9,9 @@
   <xacro:include filename="$(find ignition_quad_drive)/urdf/quadbot.materials.xacro" />
 
   <!-- Import quadbot ros2_control description -->
-  <!-- <xacro:include filename="$(find ignition_quad_drive)/ros2_control/quadbot.ros2_control.xacro" /> -->
+  <xacro:include filename="$(find ignition_quad_drive)/ros2_control/quadbot.ros2_control.xacro" />
 
   <xacro:quadbot prefix="$(arg prefix)" />
-
-  <!-- <xacro:quadbot_ros2_control name="quadbot" prefix="$(arg prefix)" /> -->
+  <xacro:quadbot_ros2_control name="quadbot" prefix="$(arg prefix)" />
 
 </robot>

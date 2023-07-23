@@ -1,3 +1,4 @@
+// Copyright 2023 Road Balance
 // Copyright 2020 PAL Robotics S.L.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -79,7 +80,7 @@ InterfaceConfiguration QuadDriveController::command_interface_configuration() co
   }
   for (const auto & joint_name : params_.front_hinge_names)
   {
-    conf_names.push_back(joint_name + "/" + HW_IF_VELOCITY);
+    conf_names.push_back(joint_name + "/" + HW_IF_POSITION);
   }
   for (const auto & joint_name : params_.rear_wheel_names)
   {
@@ -87,7 +88,7 @@ InterfaceConfiguration QuadDriveController::command_interface_configuration() co
   }
   for (const auto & joint_name : params_.rear_hinge_names)
   {
-    conf_names.push_back(joint_name + "/" + HW_IF_VELOCITY);
+    conf_names.push_back(joint_name + "/" + HW_IF_POSITION);
   }
   return {interface_configuration_type::INDIVIDUAL, conf_names};
 }
@@ -139,11 +140,11 @@ controller_interface::return_type QuadDriveController::update(
 
   const auto age_of_last_command = time - last_command_msg->header.stamp;
   // Brake if cmd_vel has timeout, override the stored command
-  if (age_of_last_command > cmd_vel_timeout_)
-  {
-    last_command_msg->twist.linear.x = 0.0;
-    last_command_msg->twist.angular.z = 0.0;
-  }
+  // if (age_of_last_command > cmd_vel_timeout_)
+  // {
+  //   last_command_msg->twist.linear.x = 0.0;
+  //   last_command_msg->twist.angular.z = 0.0;
+  // }
 
   // command may be limited further by SpeedLimit,
   // without affecting the stored twist command
@@ -160,128 +161,132 @@ controller_interface::return_type QuadDriveController::update(
   const double front_wheel_radius = params_.front_wheel_radius_multiplier * params_.wheel_radius;
   const double rear_wheel_radius = params_.rear_wheel_radius_multiplier * params_.wheel_radius;
 
-  if (params_.open_loop)
-  {
-    odometry_.updateOpenLoop(linear_command_x, linear_command_y, angular_command, time);
-  }
-  else
-  {
-    double front_feedback_mean = 0.0;
-    double rear_feedback_mean = 0.0;
-    double front_hinge_feedback_mean = 0.0;
-    double rear_hinge_feedback_mean = 0.0;
-    for (size_t index = 0; index < static_cast<size_t>(params_.wheels_per_side); ++index)
-    {
-      const double front_feedback = registered_front_wheel_handles_[index].feedback.get().get_value();
-      const double rear_feedback =
-        registered_rear_wheel_handles_[index].feedback.get().get_value();
+  // No odom now
+  // if (params_.open_loop)
+  // {
+  //   odometry_.updateOpenLoop(linear_command_x, linear_command_y, angular_command, time);
+  // }
+  // else
+  // {
+  //   double front_feedback_mean = 0.0;
+  //   double rear_feedback_mean = 0.0;
+  //   double front_hinge_feedback_mean = 0.0;
+  //   double rear_hinge_feedback_mean = 0.0;
+  //   for (size_t index = 0; index < static_cast<size_t>(params_.wheels_per_side); ++index)
+  //   {
+  //     const double front_feedback = registered_front_wheel_handles_[index].feedback.get().get_value();
+  //     const double rear_feedback =
+  //       registered_rear_wheel_handles_[index].feedback.get().get_value();
 
-      const double front_hinge_feedback = registered_front_hinge_handles_[index].position_state.get().get_value();
-      const double rear_hinge_feedback =
-        registered_rear_hinge_handles_[index].position_state.get().get_value();
+  //     const double front_hinge_feedback = registered_front_hinge_handles_[index].position_state.get().get_value();
+  //     const double rear_hinge_feedback =
+  //       registered_rear_hinge_handles_[index].position_state.get().get_value();
 
-      if (std::isnan(front_feedback) || std::isnan(rear_feedback))
-      {
-        RCLCPP_ERROR(
-          logger, "Either the left or right wheel %s is invalid for index [%zu]", feedback_type(),
-          index);
-        return controller_interface::return_type::ERROR;
-      }
+  //     if (std::isnan(front_feedback) || std::isnan(rear_feedback))
+  //     {
+  //       RCLCPP_ERROR(
+  //         logger, "Either the left or right wheel %s is invalid for index [%zu]", feedback_type(),
+  //         index);
+  //       return controller_interface::return_type::ERROR;
+  //     }
 
-      front_feedback_mean += front_feedback;
-      rear_feedback_mean += rear_feedback;
-      front_hinge_feedback_mean += front_hinge_feedback;
-      rear_hinge_feedback_mean += rear_hinge_feedback;
-    }
-    front_feedback_mean /= static_cast<double>(params_.wheels_per_side);
-    rear_feedback_mean /= static_cast<double>(params_.wheels_per_side);
-    front_hinge_feedback_mean /= static_cast<double>(params_.wheels_per_side);
-    rear_hinge_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+  //     front_feedback_mean += front_feedback;
+  //     rear_feedback_mean += rear_feedback;
+  //     front_hinge_feedback_mean += front_hinge_feedback;
+  //     rear_hinge_feedback_mean += rear_hinge_feedback;
+  //   }
+  //   front_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+  //   rear_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+  //   front_hinge_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+  //   rear_hinge_feedback_mean /= static_cast<double>(params_.wheels_per_side);
 
-    if (params_.position_feedback)
-    {
-      odometry_.update(front_feedback_mean, rear_feedback_mean, front_hinge_feedback_mean, rear_hinge_feedback_mean, time);
-    }
-    else
-    {
-      odometry_.updateFromVelocity(
-        front_feedback_mean * front_wheel_radius * period.seconds(),
-        rear_feedback_mean * rear_wheel_radius * period.seconds(),
-        front_hinge_feedback_mean * period.seconds(),
-        rear_hinge_feedback_mean * period.seconds(), time);
-    }
-  }
+  //   if (params_.position_feedback)
+  //   {
+  //     odometry_.update(front_feedback_mean, rear_feedback_mean, front_hinge_feedback_mean, rear_hinge_feedback_mean, time);
+  //   }
+  //   else
+  //   {
+  //     odometry_.updateFromVelocity(
+  //       front_feedback_mean * front_wheel_radius * period.seconds(),
+  //       rear_feedback_mean * rear_wheel_radius * period.seconds(),
+  //       front_hinge_feedback_mean * period.seconds(),
+  //       rear_hinge_feedback_mean * period.seconds(), time);
+  //   }
+  // }
 
-  tf2::Quaternion orientation;
-  orientation.setRPY(0.0, 0.0, odometry_.getHeading());
+  // tf2::Quaternion orientation;
+  // orientation.setRPY(0.0, 0.0, odometry_.getHeading());
 
-  bool should_publish = false;
-  try
-  {
-    if (previous_publish_timestamp_ + publish_period_ < time)
-    {
-      previous_publish_timestamp_ += publish_period_;
-      should_publish = true;
-    }
-  }
-  catch (const std::runtime_error &)
-  {
-    // Handle exceptions when the time source changes and initialize publish timestamp
-    previous_publish_timestamp_ = time;
-    should_publish = true;
-  }
+  // bool should_publish = false;
+  // try
+  // {
+  //   if (previous_publish_timestamp_ + publish_period_ < time)
+  //   {
+  //     previous_publish_timestamp_ += publish_period_;
+  //     should_publish = true;
+  //   }
+  // }
+  // catch (const std::runtime_error &)
+  // {
+  //   // Handle exceptions when the time source changes and initialize publish timestamp
+  //   previous_publish_timestamp_ = time;
+  //   should_publish = true;
+  // }
 
-  if (should_publish)
-  {
-    if (realtime_odometry_publisher_->trylock())
-    {
-      auto & odometry_message = realtime_odometry_publisher_->msg_;
-      odometry_message.header.stamp = time;
-      odometry_message.pose.pose.position.x = odometry_.getX();
-      odometry_message.pose.pose.position.y = odometry_.getY();
-      odometry_message.pose.pose.orientation.x = orientation.x();
-      odometry_message.pose.pose.orientation.y = orientation.y();
-      odometry_message.pose.pose.orientation.z = orientation.z();
-      odometry_message.pose.pose.orientation.w = orientation.w();
-      odometry_message.twist.twist.linear.x = odometry_.getLinear();
-      odometry_message.twist.twist.angular.z = odometry_.getAngular();
-      realtime_odometry_publisher_->unlockAndPublish();
-    }
+  // if (should_publish)
+  // {
+  //   if (realtime_odometry_publisher_->trylock())
+  //   {
+  //     auto & odometry_message = realtime_odometry_publisher_->msg_;
+  //     odometry_message.header.stamp = time;
+  //     odometry_message.pose.pose.position.x = odometry_.getX();
+  //     odometry_message.pose.pose.position.y = odometry_.getY();
+  //     odometry_message.pose.pose.orientation.x = orientation.x();
+  //     odometry_message.pose.pose.orientation.y = orientation.y();
+  //     odometry_message.pose.pose.orientation.z = orientation.z();
+  //     odometry_message.pose.pose.orientation.w = orientation.w();
+  //     odometry_message.twist.twist.linear.x = odometry_.getLinear();
+  //     odometry_message.twist.twist.angular.z = odometry_.getAngular();
+  //     realtime_odometry_publisher_->unlockAndPublish();
+  //   }
 
-    if (params_.enable_odom_tf && realtime_odometry_transform_publisher_->trylock())
-    {
-      auto & transform = realtime_odometry_transform_publisher_->msg_.transforms.front();
-      transform.header.stamp = time;
-      transform.transform.translation.x = odometry_.getX();
-      transform.transform.translation.y = odometry_.getY();
-      transform.transform.rotation.x = orientation.x();
-      transform.transform.rotation.y = orientation.y();
-      transform.transform.rotation.z = orientation.z();
-      transform.transform.rotation.w = orientation.w();
-      realtime_odometry_transform_publisher_->unlockAndPublish();
-    }
-  }
+  //   if (params_.enable_odom_tf && realtime_odometry_transform_publisher_->trylock())
+  //   {
+  //     auto & transform = realtime_odometry_transform_publisher_->msg_.transforms.front();
+  //     transform.header.stamp = time;
+  //     transform.transform.translation.x = odometry_.getX();
+  //     transform.transform.translation.y = odometry_.getY();
+  //     transform.transform.rotation.x = orientation.x();
+  //     transform.transform.rotation.y = orientation.y();
+  //     transform.transform.rotation.z = orientation.z();
+  //     transform.transform.rotation.w = orientation.w();
+  //     realtime_odometry_transform_publisher_->unlockAndPublish();
+  //   }
+  // }
 
-  auto & last_command = previous_commands_.back().twist;
-  auto & second_to_last_command = previous_commands_.front().twist;
-  limiter_linear_x_.limit(
-    linear_command_x, last_command.linear.x, second_to_last_command.linear.x, period.seconds());
-  limiter_linear_y_.limit(
-    linear_command_y, last_command.linear.y, second_to_last_command.linear.y, period.seconds());
-  limiter_angular_.limit(
-    angular_command, last_command.angular.z, second_to_last_command.angular.z, period.seconds());
+  // auto & last_command = previous_commands_.back().twist;
+  // auto & second_to_last_command = previous_commands_.front().twist;
+  // limiter_linear_x_.limit(
+  //   linear_command_x, last_command.linear.x, second_to_last_command.linear.x, period.seconds());
+  // limiter_linear_y_.limit(
+  //   linear_command_y, last_command.linear.y, second_to_last_command.linear.y, period.seconds());
+  // limiter_angular_.limit(
+  //   angular_command, last_command.angular.z, second_to_last_command.angular.z, period.seconds());
 
-  previous_commands_.pop();
-  previous_commands_.emplace(command);
+  RCLCPP_INFO(logger, "linear_command_x %f", linear_command_x);
+  RCLCPP_INFO(logger, "linear_command_y %f", linear_command_y);
 
-  //    Publish limited velocity
-  if (publish_limited_velocity_ && realtime_limited_velocity_publisher_->trylock())
-  {
-    auto & limited_velocity_command = realtime_limited_velocity_publisher_->msg_;
-    limited_velocity_command.header.stamp = time;
-    limited_velocity_command.twist = command.twist;
-    realtime_limited_velocity_publisher_->unlockAndPublish();
-  }
+  // previous_commands_.pop();
+  // previous_commands_.emplace(command);
+
+  // // Publish limited velocity
+  // if (publish_limited_velocity_ && realtime_limited_velocity_publisher_->trylock())
+  // {
+  //   auto & limited_velocity_command = realtime_limited_velocity_publisher_->msg_;
+  //   limited_velocity_command.header.stamp = time;
+  //   limited_velocity_command.twist = command.twist;
+  //   realtime_limited_velocity_publisher_->unlockAndPublish();
+  // }
 
   // Compute wheels velocities:
   double theta1 = std::atan((linear_command_y + wheel_track*angular_command/2) / linear_command_x);
@@ -292,18 +297,18 @@ controller_interface::return_type QuadDriveController::update(
   if( std::isnan(theta1) )
     theta1 = 0.0;
 
-  auto sin1 = std::sin(theta1); 
-  auto cos1 = std::cos(theta1);
-  auto sin2 = std::sin(theta2); 
-  auto cos2 = std::cos(theta2);
+  if(std::abs(theta2) < 0.01)
+    theta2 = 0.0;
+  if( std::isnan(theta2) )
+    theta2 = 0.0;
+
+  double sin1 = std::sin(theta1); 
+  double cos1 = std::cos(theta1);
+  double sin2 = std::sin(theta2); 
+  double cos2 = std::cos(theta2);
 
   const double velocity_front = (linear_command_x*cos1 + linear_command_y*sin1 + angular_command*sin1*wheel_track/2 ) / front_wheel_radius;
   const double velocity_rear = (linear_command_x*cos2 + linear_command_y*sin2 - angular_command*sin2*wheel_track/2 ) / rear_wheel_radius;
-
-  // const double velocity_front =
-  //   (linear_command_x - angular_command * wheel_separation / 2.0) / front_wheel_radius;
-  // const double velocity_rear =
-  //   (linear_command_x + angular_command * wheel_separation / 2.0) / rear_wheel_radius;
 
   // Set wheels velocities:
   for (size_t index = 0; index < static_cast<size_t>(params_.wheels_per_side); ++index)
@@ -394,8 +399,8 @@ controller_interface::CallbackReturn QuadDriveController::on_configure(
   received_velocity_msg_ptr_.set(std::make_shared<Twist>(empty_twist));
 
   // Fill last two commands with default constructed commands
-  previous_commands_.emplace(empty_twist);
-  previous_commands_.emplace(empty_twist);
+  // previous_commands_.emplace(empty_twist);
+  // previous_commands_.emplace(empty_twist);
 
   // initialize command subscriber
   if (use_stamped_vel_)
@@ -506,20 +511,20 @@ controller_interface::CallbackReturn QuadDriveController::on_activate(
   const rclcpp_lifecycle::State &)
 {
   const auto front_result =
-    configure_side("front", params_.front_wheel_names, registered_front_wheel_handles_);
+    configure_side("front_wheel", params_.front_wheel_names, registered_front_wheel_handles_);
   const auto rear_result =
-    configure_side("rear", params_.rear_wheel_names, registered_rear_wheel_handles_);
+    configure_side("rear_wheel", params_.rear_wheel_names, registered_rear_wheel_handles_);
 
-  // const auto front_hinge_result =
-  //   configure_side("front", params_.front_hinge_names, registered_front_hinge_handles_);
-  // const auto rear_hinge_result =
-  //   configure_side("rear", params_.rear_hinge_names, registered_rear_hinge_handles_);
+  const auto front_hinge_result =
+    configure_hinge("front_hinge", params_.front_hinge_names, registered_front_hinge_handles_);
+  const auto rear_hinge_result =
+    configure_hinge("rear_hinge", params_.rear_hinge_names, registered_rear_hinge_handles_);
 
   if (
     front_result == controller_interface::CallbackReturn::ERROR ||
-    rear_result == controller_interface::CallbackReturn::ERROR)
-    // front_hinge_result == controller_interface::CallbackReturn::ERROR ||
-    // rear_hinge_result == controller_interface::CallbackReturn::ERROR ||)
+    rear_result == controller_interface::CallbackReturn::ERROR ||
+    front_hinge_result == controller_interface::CallbackReturn::ERROR ||
+    rear_hinge_result == controller_interface::CallbackReturn::ERROR)
   {
     return controller_interface::CallbackReturn::ERROR;
   }
@@ -679,6 +684,59 @@ controller_interface::CallbackReturn QuadDriveController::configure_side(
 
   return controller_interface::CallbackReturn::SUCCESS;
 }
+
+controller_interface::CallbackReturn QuadDriveController::configure_hinge(
+  const std::string & side, const std::vector<std::string> & wheel_names,
+  std::vector<SteeringHandle> & registered_handles)
+{
+  auto logger = get_node()->get_logger();
+
+  if (wheel_names.empty())
+  {
+    RCLCPP_ERROR(logger, "No '%s' wheel names specified", side.c_str());
+    return controller_interface::CallbackReturn::ERROR;
+  }
+
+  // register handles
+  registered_handles.reserve(wheel_names.size());
+  for (const auto & wheel_name : wheel_names)
+  {
+    const auto interface_name = feedback_type();
+    const auto state_handle = std::find_if(
+      state_interfaces_.cbegin(), state_interfaces_.cend(),
+      [&wheel_name, &interface_name](const auto & interface)
+      {
+        return interface.get_prefix_name() == wheel_name &&
+               interface.get_interface_name() == interface_name;
+      });
+
+    if (state_handle == state_interfaces_.cend())
+    {
+      RCLCPP_ERROR(logger, "Unable to obtain joint state handle for %s", wheel_name.c_str());
+      return controller_interface::CallbackReturn::ERROR;
+    }
+
+    const auto command_handle = std::find_if(
+      command_interfaces_.begin(), command_interfaces_.end(),
+      [&wheel_name](const auto & interface)
+      {
+        return interface.get_prefix_name() == wheel_name &&
+               interface.get_interface_name() == HW_IF_POSITION;
+      });
+
+    if (command_handle == command_interfaces_.end())
+    {
+      RCLCPP_ERROR(logger, "Unable to obtain joint command handle for %s", wheel_name.c_str());
+      return controller_interface::CallbackReturn::ERROR;
+    }
+
+    registered_handles.emplace_back(
+      SteeringHandle{std::ref(*state_handle), std::ref(*command_handle)});
+  }
+
+  return controller_interface::CallbackReturn::SUCCESS;
+}
+
 }  // namespace quad_drive_controller
 
 #include "class_loader/register_macro.hpp"
