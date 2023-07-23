@@ -1,0 +1,7 @@
+<library path="quad_drive_controller">
+  <class name="quad_drive_controller/QuadDriveController" type="quad_drive_controller::QuadDriveController" base_class_type="controller_interface::ControllerInterface">
+  <description>
+    The quad-drive controller transforms linear and angular velocity messages into signals for each wheel(s) for a quad-drive robot.
+  </description>
+  </class>
+</library>
