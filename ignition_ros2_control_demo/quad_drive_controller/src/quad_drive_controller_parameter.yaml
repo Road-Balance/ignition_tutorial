@@ -1,18 +1,33 @@
 quad_drive_controller:
-  left_wheel_names: {
+  front_wheel_names: {
     type: string_array,
     default_value: [],
-    description: "Link names of the left side wheels",
+    description: "Link names of the front side wheels",
   }
-  right_wheel_names: {
+  front_hinge_names: {
     type: string_array,
     default_value: [],
-    description: "Link names of the right side wheels",
+    description: "Link names of the front side wheels",
+  }
+  rear_wheel_names: {
+    type: string_array,
+    default_value: [],
+    description: "Link names of the rear side wheels",
+  }
+  rear_hinge_names: {
+    type: string_array,
+    default_value: [],
+    description: "Link names of the rear side wheels",
   }
   wheel_separation: {
     type: double,
     default_value: 0.0,
     description: "Shortest distance between the left and right wheels. If this parameter is wrong, the robot will not behave correctly in curves.",
+  }
+  wheel_track: {
+    type: double,
+    default_value: 0.0,
+    description: "2l",
   }
   wheels_per_side: {
     type: int,
@@ -29,12 +44,17 @@ quad_drive_controller:
     default_value: 1.0,
     description: "Correction factor for wheel separation (TODO(destogl): Please help me describe this correctly)",
   }
-  left_wheel_radius_multiplier: {
+  wheel_track_multiplier: {
+    type: double,
+    default_value: 1.0,
+    description: "TODO: Please help me describe this correctly",
+  }
+  front_wheel_radius_multiplier: {
     type: double,
     default_value: 1.0,
     description: "Correction factor when radius of left wheels differs from the nominal value in ``wheel_radius`` parameter.",
   }
-  right_wheel_radius_multiplier: {
+  rear_wheel_radius_multiplier: {
     type: double,
     default_value: 1.0,
     description: "Correction factor when radius of right wheels differs from the nominal value in ``wheel_radius`` parameter.",
@@ -101,6 +121,43 @@ quad_drive_controller:
   }
   linear:
     x:
+      has_velocity_limits: {
+        type: bool,
+        default_value: false,
+      }
+      has_acceleration_limits: {
+        type: bool,
+        default_value: false,
+      }
+      has_jerk_limits: {
+        type: bool,
+        default_value: false,
+      }
+      max_velocity: {
+        type: double,
+        default_value: .NAN,
+      }
+      min_velocity: {
+        type: double,
+        default_value: .NAN,
+      }
+      max_acceleration: {
+        type: double,
+        default_value: .NAN,
+      }
+      min_acceleration: {
+        type: double,
+        default_value: .NAN,
+      }
+      max_jerk: {
+        type: double,
+        default_value: .NAN,
+      }
+      min_jerk: {
+        type: double,
+        default_value: .NAN,
+      }
+    y:
       has_velocity_limits: {
         type: bool,
         default_value: false,

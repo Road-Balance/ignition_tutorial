@@ -73,30 +73,46 @@ controller_interface::CallbackReturn QuadDriveController::on_init()
 InterfaceConfiguration QuadDriveController::command_interface_configuration() const
 {
   std::vector<std::string> conf_names;
-  for (const auto & joint_name : params_.left_wheel_names)
+  for (const auto & joint_name : params_.front_wheel_names)
   {
     conf_names.push_back(joint_name + "/" + HW_IF_VELOCITY);
   }
-  for (const auto & joint_name : params_.right_wheel_names)
+  for (const auto & joint_name : params_.front_hinge_names)
+  {
+    conf_names.push_back(joint_name + "/" + HW_IF_VELOCITY);
+  }
+  for (const auto & joint_name : params_.rear_wheel_names)
+  {
+    conf_names.push_back(joint_name + "/" + HW_IF_VELOCITY);
+  }
+  for (const auto & joint_name : params_.rear_hinge_names)
   {
     conf_names.push_back(joint_name + "/" + HW_IF_VELOCITY);
   }
   return {interface_configuration_type::INDIVIDUAL, conf_names};
 }
 
-InterfaceConfiguration QuadDriveController::state_interface_configuration() const
-{
-  std::vector<std::string> conf_names;
-  for (const auto & joint_name : params_.left_wheel_names)
+  InterfaceConfiguration QuadDriveController::state_interface_configuration() const
   {
-    conf_names.push_back(joint_name + "/" + feedback_type());
+    std::vector<std::string> conf_names;
+    for (const auto & joint_name : params_.front_wheel_names)
+    {
+      conf_names.push_back(joint_name + "/" + feedback_type());
+    }
+    for (const auto & joint_name : params_.front_hinge_names)
+    {
+      conf_names.push_back(joint_name + "/" + feedback_type());
+    }
+    for (const auto & joint_name : params_.rear_wheel_names)
+    {
+      conf_names.push_back(joint_name + "/" + feedback_type());
+    }
+    for (const auto & joint_name : params_.rear_hinge_names)
+    {
+      conf_names.push_back(joint_name + "/" + feedback_type());
+    }
+    return {interface_configuration_type::INDIVIDUAL, conf_names};
   }
-  for (const auto & joint_name : params_.right_wheel_names)
-  {
-    conf_names.push_back(joint_name + "/" + feedback_type());
-  }
-  return {interface_configuration_type::INDIVIDUAL, conf_names};
-}
 
 controller_interface::return_type QuadDriveController::update(
   const rclcpp::Time & time, const rclcpp::Duration & period)
@@ -132,31 +148,39 @@ controller_interface::return_type QuadDriveController::update(
   // command may be limited further by SpeedLimit,
   // without affecting the stored twist command
   Twist command = *last_command_msg;
-  double & linear_command = command.twist.linear.x;
+  double & linear_command_x = command.twist.linear.x;
+  double & linear_command_y = command.twist.linear.y;
   double & angular_command = command.twist.angular.z;
 
   previous_update_timestamp_ = time;
 
   // Apply (possibly new) multipliers:
-  const double wheel_separation = params_.wheel_separation_multiplier * params_.wheel_separation;
-  const double left_wheel_radius = params_.left_wheel_radius_multiplier * params_.wheel_radius;
-  const double right_wheel_radius = params_.right_wheel_radius_multiplier * params_.wheel_radius;
+  // const double wheel_separation = params_.wheel_separation_multiplier * params_.wheel_separation;
+  const double wheel_track = params_.wheel_track_multiplier * params_.wheel_track;
+  const double front_wheel_radius = params_.front_wheel_radius_multiplier * params_.wheel_radius;
+  const double rear_wheel_radius = params_.rear_wheel_radius_multiplier * params_.wheel_radius;
 
   if (params_.open_loop)
   {
-    odometry_.updateOpenLoop(linear_command, angular_command, time);
+    odometry_.updateOpenLoop(linear_command_x, linear_command_y, angular_command, time);
   }
   else
   {
-    double left_feedback_mean = 0.0;
-    double right_feedback_mean = 0.0;
+    double front_feedback_mean = 0.0;
+    double rear_feedback_mean = 0.0;
+    double front_hinge_feedback_mean = 0.0;
+    double rear_hinge_feedback_mean = 0.0;
     for (size_t index = 0; index < static_cast<size_t>(params_.wheels_per_side); ++index)
     {
-      const double left_feedback = registered_left_wheel_handles_[index].feedback.get().get_value();
-      const double right_feedback =
-        registered_right_wheel_handles_[index].feedback.get().get_value();
+      const double front_feedback = registered_front_wheel_handles_[index].feedback.get().get_value();
+      const double rear_feedback =
+        registered_rear_wheel_handles_[index].feedback.get().get_value();
 
-      if (std::isnan(left_feedback) || std::isnan(right_feedback))
+      const double front_hinge_feedback = registered_front_hinge_handles_[index].position_state.get().get_value();
+      const double rear_hinge_feedback =
+        registered_rear_hinge_handles_[index].position_state.get().get_value();
+
+      if (std::isnan(front_feedback) || std::isnan(rear_feedback))
       {
         RCLCPP_ERROR(
           logger, "Either the left or right wheel %s is invalid for index [%zu]", feedback_type(),
@@ -164,21 +188,27 @@ controller_interface::return_type QuadDriveController::update(
         return controller_interface::return_type::ERROR;
       }
 
-      left_feedback_mean += left_feedback;
-      right_feedback_mean += right_feedback;
+      front_feedback_mean += front_feedback;
+      rear_feedback_mean += rear_feedback;
+      front_hinge_feedback_mean += front_hinge_feedback;
+      rear_hinge_feedback_mean += rear_hinge_feedback;
     }
-    left_feedback_mean /= static_cast<double>(params_.wheels_per_side);
-    right_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+    front_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+    rear_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+    front_hinge_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+    rear_hinge_feedback_mean /= static_cast<double>(params_.wheels_per_side);
 
     if (params_.position_feedback)
     {
-      odometry_.update(left_feedback_mean, right_feedback_mean, time);
+      odometry_.update(front_feedback_mean, rear_feedback_mean, front_hinge_feedback_mean, rear_hinge_feedback_mean, time);
     }
     else
     {
       odometry_.updateFromVelocity(
-        left_feedback_mean * left_wheel_radius * period.seconds(),
-        right_feedback_mean * right_wheel_radius * period.seconds(), time);
+        front_feedback_mean * front_wheel_radius * period.seconds(),
+        rear_feedback_mean * rear_wheel_radius * period.seconds(),
+        front_hinge_feedback_mean * period.seconds(),
+        rear_hinge_feedback_mean * period.seconds(), time);
     }
   }
 
@@ -234,8 +264,10 @@ controller_interface::return_type QuadDriveController::update(
 
   auto & last_command = previous_commands_.back().twist;
   auto & second_to_last_command = previous_commands_.front().twist;
-  limiter_linear_.limit(
-    linear_command, last_command.linear.x, second_to_last_command.linear.x, period.seconds());
+  limiter_linear_x_.limit(
+    linear_command_x, last_command.linear.x, second_to_last_command.linear.x, period.seconds());
+  limiter_linear_y_.limit(
+    linear_command_y, last_command.linear.y, second_to_last_command.linear.y, period.seconds());
   limiter_angular_.limit(
     angular_command, last_command.angular.z, second_to_last_command.angular.z, period.seconds());
 
@@ -252,16 +284,35 @@ controller_interface::return_type QuadDriveController::update(
   }
 
   // Compute wheels velocities:
-  const double velocity_left =
-    (linear_command - angular_command * wheel_separation / 2.0) / left_wheel_radius;
-  const double velocity_right =
-    (linear_command + angular_command * wheel_separation / 2.0) / right_wheel_radius;
+  double theta1 = std::atan((linear_command_y + wheel_track*angular_command/2) / linear_command_x);
+  double theta2 = std::atan((linear_command_y - wheel_track*angular_command/2) / linear_command_x);
+  
+  if(std::abs(theta1) < 0.01)
+    theta1 = 0.0;
+  if( std::isnan(theta1) )
+    theta1 = 0.0;
+
+  auto sin1 = std::sin(theta1); 
+  auto cos1 = std::cos(theta1);
+  auto sin2 = std::sin(theta2); 
+  auto cos2 = std::cos(theta2);
+
+  const double velocity_front = (linear_command_x*cos1 + linear_command_y*sin1 + angular_command*sin1*wheel_track/2 ) / front_wheel_radius;
+  const double velocity_rear = (linear_command_x*cos2 + linear_command_y*sin2 - angular_command*sin2*wheel_track/2 ) / rear_wheel_radius;
+
+  // const double velocity_front =
+  //   (linear_command_x - angular_command * wheel_separation / 2.0) / front_wheel_radius;
+  // const double velocity_rear =
+  //   (linear_command_x + angular_command * wheel_separation / 2.0) / rear_wheel_radius;
 
   // Set wheels velocities:
   for (size_t index = 0; index < static_cast<size_t>(params_.wheels_per_side); ++index)
   {
-    registered_left_wheel_handles_[index].velocity.get().set_value(velocity_left);
-    registered_right_wheel_handles_[index].velocity.get().set_value(velocity_right);
+    registered_front_wheel_handles_[index].velocity.get().set_value(velocity_front);
+    registered_rear_wheel_handles_[index].velocity.get().set_value(velocity_rear);
+
+    registered_front_hinge_handles_[index].position_command.get().set_value(theta1);
+    registered_rear_hinge_handles_[index].position_command.get().set_value(theta2);
   }
 
   return controller_interface::return_type::OK;
@@ -279,36 +330,43 @@ controller_interface::CallbackReturn QuadDriveController::on_configure(
     RCLCPP_INFO(logger, "Parameters were updated");
   }
 
-  if (params_.left_wheel_names.size() != params_.right_wheel_names.size())
+  if (params_.front_wheel_names.size() != params_.rear_wheel_names.size())
   {
     RCLCPP_ERROR(
-      logger, "The number of left wheels [%zu] and the number of right wheels [%zu] are different",
-      params_.left_wheel_names.size(), params_.right_wheel_names.size());
+      logger, "The number of front wheels [%zu] and the number of rear wheels [%zu] are different",
+      params_.front_wheel_names.size(), params_.rear_wheel_names.size());
     return controller_interface::CallbackReturn::ERROR;
   }
 
-  if (params_.left_wheel_names.empty())
+  if (params_.front_wheel_names.empty())
   {
     RCLCPP_ERROR(logger, "Wheel names parameters are empty!");
     return controller_interface::CallbackReturn::ERROR;
   }
 
   const double wheel_separation = params_.wheel_separation_multiplier * params_.wheel_separation;
-  const double left_wheel_radius = params_.left_wheel_radius_multiplier * params_.wheel_radius;
-  const double right_wheel_radius = params_.right_wheel_radius_multiplier * params_.wheel_radius;
+  // const double wheel_track = params_.wheel_track_multiplier * params_.wheel_track;
+  const double front_wheel_radius = params_.front_wheel_radius_multiplier * params_.wheel_radius;
+  const double rear_wheel_radius = params_.rear_wheel_radius_multiplier * params_.wheel_radius;
 
-  odometry_.setWheelParams(wheel_separation, left_wheel_radius, right_wheel_radius);
+  odometry_.setWheelParams(wheel_separation, front_wheel_radius, rear_wheel_radius);
   odometry_.setVelocityRollingWindowSize(params_.velocity_rolling_window_size);
 
   cmd_vel_timeout_ = std::chrono::milliseconds{static_cast<int>(params_.cmd_vel_timeout * 1000.0)};
   publish_limited_velocity_ = params_.publish_limited_velocity;
   use_stamped_vel_ = params_.use_stamped_vel;
 
-  limiter_linear_ = SpeedLimiter(
+  limiter_linear_x_ = SpeedLimiter(
     params_.linear.x.has_velocity_limits, params_.linear.x.has_acceleration_limits,
     params_.linear.x.has_jerk_limits, params_.linear.x.min_velocity, params_.linear.x.max_velocity,
     params_.linear.x.min_acceleration, params_.linear.x.max_acceleration, params_.linear.x.min_jerk,
     params_.linear.x.max_jerk);
+
+  limiter_linear_y_ = SpeedLimiter(
+    params_.linear.y.has_velocity_limits, params_.linear.y.has_acceleration_limits,
+    params_.linear.y.has_jerk_limits, params_.linear.y.min_velocity, params_.linear.y.max_velocity,
+    params_.linear.y.min_acceleration, params_.linear.y.max_acceleration, params_.linear.y.min_jerk,
+    params_.linear.y.max_jerk);
 
   limiter_angular_ = SpeedLimiter(
     params_.angular.z.has_velocity_limits, params_.angular.z.has_acceleration_limits,
@@ -322,7 +380,7 @@ controller_interface::CallbackReturn QuadDriveController::on_configure(
   }
 
   // left and right sides are both equal at this point
-  params_.wheels_per_side = params_.left_wheel_names.size();
+  params_.wheels_per_side = params_.front_wheel_names.size();
 
   if (publish_limited_velocity_)
   {
@@ -447,23 +505,30 @@ controller_interface::CallbackReturn QuadDriveController::on_configure(
 controller_interface::CallbackReturn QuadDriveController::on_activate(
   const rclcpp_lifecycle::State &)
 {
-  const auto left_result =
-    configure_side("left", params_.left_wheel_names, registered_left_wheel_handles_);
-  const auto right_result =
-    configure_side("right", params_.right_wheel_names, registered_right_wheel_handles_);
+  const auto front_result =
+    configure_side("front", params_.front_wheel_names, registered_front_wheel_handles_);
+  const auto rear_result =
+    configure_side("rear", params_.rear_wheel_names, registered_rear_wheel_handles_);
+
+  // const auto front_hinge_result =
+  //   configure_side("front", params_.front_hinge_names, registered_front_hinge_handles_);
+  // const auto rear_hinge_result =
+  //   configure_side("rear", params_.rear_hinge_names, registered_rear_hinge_handles_);
 
   if (
-    left_result == controller_interface::CallbackReturn::ERROR ||
-    right_result == controller_interface::CallbackReturn::ERROR)
+    front_result == controller_interface::CallbackReturn::ERROR ||
+    rear_result == controller_interface::CallbackReturn::ERROR)
+    // front_hinge_result == controller_interface::CallbackReturn::ERROR ||
+    // rear_hinge_result == controller_interface::CallbackReturn::ERROR ||)
   {
     return controller_interface::CallbackReturn::ERROR;
   }
 
-  if (registered_left_wheel_handles_.empty() || registered_right_wheel_handles_.empty())
+  if (registered_front_wheel_handles_.empty() || registered_rear_wheel_handles_.empty())
   {
     RCLCPP_ERROR(
       get_node()->get_logger(),
-      "Either left wheel interfaces, right wheel interfaces are non existent");
+      "Either front wheel interfaces, rear wheel interfaces are non existent");
     return controller_interface::CallbackReturn::ERROR;
   }
 
@@ -483,8 +548,10 @@ controller_interface::CallbackReturn QuadDriveController::on_deactivate(
     halt();
     is_halted = true;
   }
-  registered_left_wheel_handles_.clear();
-  registered_right_wheel_handles_.clear();
+  registered_front_wheel_handles_.clear();
+  registered_rear_wheel_handles_.clear();
+  registered_front_hinge_handles_.clear();
+  registered_rear_hinge_handles_.clear();
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
@@ -517,8 +584,10 @@ bool QuadDriveController::reset()
   std::queue<Twist> empty;
   std::swap(previous_commands_, empty);
 
-  registered_left_wheel_handles_.clear();
-  registered_right_wheel_handles_.clear();
+  registered_front_wheel_handles_.clear();
+  registered_rear_wheel_handles_.clear();
+  registered_front_hinge_handles_.clear();
+  registered_rear_hinge_handles_.clear();
 
   subscriber_is_active_ = false;
   velocity_command_subscriber_.reset();
@@ -545,8 +614,18 @@ void QuadDriveController::halt()
     }
   };
 
-  halt_wheels(registered_left_wheel_handles_);
-  halt_wheels(registered_right_wheel_handles_);
+  const auto halt_hinges = [](auto & hinge_handles)
+  {
+    for (const auto & wheel_handle : hinge_handles)
+    {
+      wheel_handle.position_command.get().set_value(0.0);
+    }
+  };
+
+  halt_wheels(registered_front_wheel_handles_);
+  halt_wheels(registered_rear_wheel_handles_);
+  halt_hinges(registered_front_hinge_handles_);
+  halt_hinges(registered_rear_hinge_handles_);
 }
 
 controller_interface::CallbackReturn QuadDriveController::configure_side(

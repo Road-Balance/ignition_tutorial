@@ -35,22 +35,22 @@ public:
   explicit Odometry(size_t velocity_rolling_window_size = 10);
 
   void init(const rclcpp::Time & time);
-  bool update(double left_pos, double right_pos, const rclcpp::Time & time);
-  bool updateFromVelocity(double left_vel, double right_vel, const rclcpp::Time & time);
-  void updateOpenLoop(double linear, double angular, const rclcpp::Time & time);
+  bool update(double front_pos, double rear_pos, double front_hinge_pos, double rear_hinge_pos, const rclcpp::Time & time);
+  bool updateFromVelocity(double front_vel, double rear_vel, double front_hinge_pos, double rear_hinge_pos, const rclcpp::Time & time);
+  void updateOpenLoop(double linear_x, double linear_y, double angular, const rclcpp::Time & time);
   void resetOdometry();
 
   double getX() const { return x_; }
   double getY() const { return y_; }
   double getHeading() const { return heading_; }
-  double getLinear() const { return linear_; }
+  double getLinear() const { return linear_x_; }
   double getAngular() const { return angular_; }
 
-  void setWheelParams(double wheel_separation, double left_wheel_radius, double right_wheel_radius);
+  void setWheelParams(double wheel_track, double front_wheel_radius, double rear_wheel_radius);
   void setVelocityRollingWindowSize(size_t velocity_rolling_window_size);
-  
+
 private:
-  using RollingMeanAccumulator = rcpputils::RollingMeanAccumulator<double>;
+  using RollingMeanAccumulator = rcppmath::RollingMeanAccumulator<double>;
 
   void integrateRungeKutta2(double linear, double angular);
   void integrateExact(double linear, double angular);
@@ -65,17 +65,18 @@ private:
   double heading_;  // [rad]
 
   // Current velocity:
-  double linear_;   //   [m/s]
+  double linear_x_;   //   [m/s]
+  double linear_y_;   //   [m/s]
   double angular_;  // [rad/s]
 
   // Wheel kinematic parameters [m]:
-  double wheel_separation_;
-  double left_wheel_radius_;
-  double right_wheel_radius_;
+  double wheel_track_;
+  double front_wheel_radius_;
+  double rear_wheel_radius_;
 
   // Previous wheel position/state [rad]:
-  double left_wheel_old_pos_;
-  double right_wheel_old_pos_;
+  double front_wheel_old_pos_;
+  double rear_wheel_old_pos_;
 
   // Rolling mean accumulators for the linear and angular velocities:
   size_t velocity_rolling_window_size_;

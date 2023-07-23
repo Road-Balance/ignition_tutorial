@@ -98,14 +98,24 @@ protected:
     std::reference_wrapper<const hardware_interface::LoanedStateInterface> feedback;
     std::reference_wrapper<hardware_interface::LoanedCommandInterface> velocity;
   };
+  struct SteeringHandle
+  {
+    std::reference_wrapper<const hardware_interface::LoanedStateInterface> position_state;
+    std::reference_wrapper<hardware_interface::LoanedCommandInterface> position_command;
+  };
 
   const char * feedback_type() const;
   controller_interface::CallbackReturn configure_side(
     const std::string & side, const std::vector<std::string> & wheel_names,
     std::vector<WheelHandle> & registered_handles);
 
-  std::vector<WheelHandle> registered_left_wheel_handles_;
-  std::vector<WheelHandle> registered_right_wheel_handles_;
+  // std::vector<WheelHandle> registered_left_wheel_handles_;
+  std::vector<WheelHandle> registered_front_wheel_handles_;
+  // std::vector<WheelHandle> registered_right_wheel_handles_;
+  std::vector<WheelHandle> registered_rear_wheel_handles_;
+
+  std::vector<SteeringHandle> registered_front_hinge_handles_;
+  std::vector<SteeringHandle> registered_rear_hinge_handles_;
 
   // Parameters from ROS for diff_drive_controller
   std::shared_ptr<ParamListener> param_listener_;
@@ -135,7 +145,8 @@ protected:
   std::queue<Twist> previous_commands_;  // last two commands
 
   // speed limiters
-  SpeedLimiter limiter_linear_;
+  SpeedLimiter limiter_linear_x_;
+  SpeedLimiter limiter_linear_y_;
   SpeedLimiter limiter_angular_;
 
   bool publish_limited_velocity_ = false;
