@@ -29,15 +29,6 @@ def generate_launch_description():
     camera_enabled = LaunchConfiguration("camera_enabled", default=True)
     two_d_lidar_enabled = LaunchConfiguration("two_d_lidar_enabled", default=True)
 
-    # robot_description_content = get_xacro_to_doc(
-    #     join(bcr_bot_path, "urdf", "bcr_bot.xacro"),
-    #     {"sim_gz": "true",
-    #      "two_d_lidar_enabled": "true",
-    #      "conveyor_enabled": "false",
-    #      "camera_enabled": "true"
-    #     }
-    # ).toxml()
-
     robot_state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
