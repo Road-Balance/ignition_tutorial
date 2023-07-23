@@ -39,6 +39,7 @@ ros2 launch robot_demo_description quadbot_desc.launch.py
 
 ros2 launch ignition_diff_drive empty_world.launch.py 
 
+cbp rqt_robot_steering_qd
 ros2 run rqt_robot_steering_qd rqt_robot_steering_qd --force-discover
-
+ros2 launch ignition_quad_drive empty_world.launch.py
 ```

@@ -273,9 +273,6 @@ controller_interface::return_type QuadDriveController::update(
   // limiter_angular_.limit(
   //   angular_command, last_command.angular.z, second_to_last_command.angular.z, period.seconds());
 
-  RCLCPP_INFO(logger, "linear_command_x %f", linear_command_x);
-  RCLCPP_INFO(logger, "linear_command_y %f", linear_command_y);
-
   // previous_commands_.pop();
   // previous_commands_.emplace(command);
 
