@@ -1,5 +1,6 @@
 # ignition_tutorial
-ROS 2 Humble + Gazebo Garden Tutorial 
+
+| ROS 2 Humble + Gazebo Garden Tutorial 
 
 * Install Dependencies
 
@@ -8,6 +9,8 @@ sudo apt install ros-humble-turtlebot4-ignition-bringup -y
 sudo apt install ros-humble-diff-drive-controller -y
 sudo apt install ros-humble-ros2-control -y
 ```
+
+* Part1. Ignition Tutorials
 
 ```
 ros2 launch rb_ignition_tutorial camera.launch.py 
@@ -31,7 +34,27 @@ ros2 launch rb_ignition_tutorial robot_description_publisher.launch.py
 ros2 launch rb_ignition_tutorial tf_bridge.launch.py 
 ```
 
-* ROS 2 Control Demo
+* Part2. CAD to Sim, BCR Bot
+
+```
+ros2 launch bcr_bot gz.launch.py
+ros2 launch bcr_bot rviz.launch.py
+```
+
+* Part3. Mobile Robot Navigation
+
+
+```
+# SLAM Toolbox
+ros2 launch bcr_bot gz.launch.py
+ros2 launch bcr_slam slam_toolbox.launch.py
+
+# Nav2
+ros2 launch bcr_bot gz.launch.py
+ros2 launch bcr_navigation bringup_launch.py
+```
+
+* Part4. 
 
 ```
 ros2 launch robot_demo_description diffbot_desc.launch.py 
