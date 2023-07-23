@@ -33,8 +33,8 @@ import xacro
 def generate_launch_description():
 
     # Package Directories
-    pkg_path = get_package_share_directory('ignition_diff_drive')
-    xacro_path = os.path.join(pkg_path, "urdf", "diffbot.urdf.xacro")
+    pkg_path = get_package_share_directory('ignition_quad_drive')
+    xacro_path = os.path.join(pkg_path, "urdf", "quadbot.urdf.xacro")
     pkg_ros_gz_sim = get_package_share_directory('ros_gz_sim')
     
     # Gazebo Sim
@@ -74,17 +74,17 @@ def generate_launch_description():
     )
 
     # ROS 2 controller
-    load_joint_state_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'joint_state_broadcaster'],
-        output='screen'
-    )
+    # load_joint_state_controller = ExecuteProcess(
+    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+    #          'joint_state_broadcaster'],
+    #     output='screen'
+    # )
 
-    load_diff_drive_controller = ExecuteProcess(
-        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-             'diff_drive_base_controller'],
-        output='screen'
-    )
+    # load_diff_drive_controller = ExecuteProcess(
+    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
+    #          'diff_drive_base_controller'],
+    #     output='screen'
+    # )
 
     gz_ros2_bridge = Node(
         package='ros_gz_bridge',
@@ -93,33 +93,28 @@ def generate_launch_description():
         output='screen'
     )
 
-    rqt_robot_steering = Node(
-        package='rqt_robot_steering',
-        executable='rqt_robot_steering',
-        name='rqt_robot_steering',
-        output='screen'
-    )
-
     return LaunchDescription([
         # Launch Configuration 
 
         # Nodes and Launches
+        # ign_resource_path,
         gazebo,
         robot_state_publisher,
         gz_spawn_entity,
         gz_ros2_bridge,
-        rqt_robot_steering,
 
-        RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=gz_spawn_entity,
-                on_exit=[load_joint_state_controller],
-            )
-        ),
-        RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=load_joint_state_controller,
-                on_exit=[load_diff_drive_controller],
-            )
-        ),
+        # RegisterEventHandler(
+        #     event_handler=OnProcessExit(
+        #         target_action=gz_spawn_entity,
+        #         on_exit=[load_joint_state_controller],
+        #     )
+        # ),
+        # RegisterEventHandler(
+        #     event_handler=OnProcessExit(
+        #         target_action=load_joint_state_controller,
+        #         on_exit=[load_diff_drive_controller],
+        #     )
+        # ),
+        # rqt_robot_steering,
+        # rviz,
     ])

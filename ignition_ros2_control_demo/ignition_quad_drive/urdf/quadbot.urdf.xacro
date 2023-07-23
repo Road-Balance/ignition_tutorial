@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!-- Basic quad drive mobile base -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="quaddrive_robot">
+  <xacro:arg name="prefix" default="" />
+
+  <xacro:include filename="$(find ignition_quad_drive)/urdf/quadbot_description.urdf.xacro" />
+
+  <!-- Import Rviz colors -->
+  <xacro:include filename="$(find ignition_quad_drive)/urdf/quadbot.materials.xacro" />
+
+  <!-- Import quadbot ros2_control description -->
+  <!-- <xacro:include filename="$(find ignition_quad_drive)/ros2_control/quadbot.ros2_control.xacro" /> -->
+
+  <xacro:quadbot prefix="$(arg prefix)" />
+
+  <!-- <xacro:quadbot_ros2_control name="quadbot" prefix="$(arg prefix)" /> -->
+
+</robot>
