@@ -60,26 +60,27 @@ def main():
     goal_pose1 = PoseStamped()
     goal_pose1.header.frame_id = 'map'
     goal_pose1.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose1.pose.position.x = 1.5
-    goal_pose1.pose.position.y = 0.55
-    goal_pose1.pose.orientation.w = 0.707
-    goal_pose1.pose.orientation.z = 0.707
+    goal_pose1.pose.position.x = 0.035461217164993286
+    goal_pose1.pose.position.y = -4.997158050537109
+    goal_pose1.pose.orientation.z = -0.70851445378865
+    goal_pose1.pose.orientation.w = 0.705696300665216
     goal_poses.append(goal_pose1)
 
     # additional goals can be appended
     goal_pose2 = PoseStamped()
     goal_pose2.header.frame_id = 'map'
     goal_pose2.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose2.pose.position.x = 1.5
-    goal_pose2.pose.position.y = -3.75
-    goal_pose2.pose.orientation.w = 0.707
-    goal_pose2.pose.orientation.z = 0.707
+    goal_pose2.pose.position.x = -2.985642433166504
+    goal_pose2.pose.position.y = -5.027368545532227
+    goal_pose2.pose.orientation.z = 1.0
+    goal_pose2.pose.orientation.w = 0.0
     goal_poses.append(goal_pose2)
+
     goal_pose3 = PoseStamped()
     goal_pose3.header.frame_id = 'map'
     goal_pose3.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose3.pose.position.x = -3.6
-    goal_pose3.pose.position.y = -4.75
+    goal_pose3.pose.position.x = -3.466179370880127
+    goal_pose3.pose.position.y = 8.554014205932617
     goal_pose3.pose.orientation.w = 0.707
     goal_pose3.pose.orientation.z = 0.707
     goal_poses.append(goal_pose3)
@@ -111,14 +112,14 @@ def main():
                 navigator.cancelTask()
 
             # Some follow waypoints request change to demo preemption
-            if now - nav_start > Duration(seconds=35.0):
+            if now - nav_start > Duration(seconds=350.0):
                 goal_pose4 = PoseStamped()
                 goal_pose4.header.frame_id = 'map'
                 goal_pose4.header.stamp = now.to_msg()
-                goal_pose4.pose.position.x = -5.0
-                goal_pose4.pose.position.y = -4.75
+                goal_pose4.pose.position.x = 0.035461217164993286
+                goal_pose4.pose.position.y = -4.997158050537109
+                goal_pose4.pose.orientation.z = -0.707
                 goal_pose4.pose.orientation.w = 0.707
-                goal_pose4.pose.orientation.z = 0.707
                 goal_poses = [goal_pose4]
                 nav_start = now
                 navigator.followWaypoints(goal_poses)
