@@ -41,5 +41,6 @@ def generate_launch_description():
 	return LaunchDescription([
         DeclareLaunchArgument('use_sim_time', default_value='false'),
         DeclareLaunchArgument('robot_description', default_value=doc.toxml()),
-        robot_state_publisher, rviz
+        # robot_state_publisher, 
+		rviz,
     ])
