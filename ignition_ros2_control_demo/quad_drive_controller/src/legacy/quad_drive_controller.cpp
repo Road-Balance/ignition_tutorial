@@ -161,6 +161,130 @@ controller_interface::return_type QuadDriveController::update(
   const double front_wheel_radius = params_.front_wheel_radius_multiplier * params_.wheel_radius;
   const double rear_wheel_radius = params_.rear_wheel_radius_multiplier * params_.wheel_radius;
 
+  // No odom now
+  // if (params_.open_loop)
+  // {
+  //   odometry_.updateOpenLoop(linear_command_x, linear_command_y, angular_command, time);
+  // }
+  // else
+  // {
+  //   double front_feedback_mean = 0.0;
+  //   double rear_feedback_mean = 0.0;
+  //   double front_hinge_feedback_mean = 0.0;
+  //   double rear_hinge_feedback_mean = 0.0;
+  //   for (size_t index = 0; index < static_cast<size_t>(params_.wheels_per_side); ++index)
+  //   {
+  //     const double front_feedback = registered_front_wheel_handles_[index].feedback.get().get_value();
+  //     const double rear_feedback =
+  //       registered_rear_wheel_handles_[index].feedback.get().get_value();
+
+  //     const double front_hinge_feedback = registered_front_hinge_handles_[index].position_state.get().get_value();
+  //     const double rear_hinge_feedback =
+  //       registered_rear_hinge_handles_[index].position_state.get().get_value();
+
+  //     if (std::isnan(front_feedback) || std::isnan(rear_feedback))
+  //     {
+  //       RCLCPP_ERROR(
+  //         logger, "Either the left or right wheel %s is invalid for index [%zu]", feedback_type(),
+  //         index);
+  //       return controller_interface::return_type::ERROR;
+  //     }
+
+  //     front_feedback_mean += front_feedback;
+  //     rear_feedback_mean += rear_feedback;
+  //     front_hinge_feedback_mean += front_hinge_feedback;
+  //     rear_hinge_feedback_mean += rear_hinge_feedback;
+  //   }
+  //   front_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+  //   rear_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+  //   front_hinge_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+  //   rear_hinge_feedback_mean /= static_cast<double>(params_.wheels_per_side);
+
+  //   if (params_.position_feedback)
+  //   {
+  //     odometry_.update(front_feedback_mean, rear_feedback_mean, front_hinge_feedback_mean, rear_hinge_feedback_mean, time);
+  //   }
+  //   else
+  //   {
+  //     odometry_.updateFromVelocity(
+  //       front_feedback_mean * front_wheel_radius * period.seconds(),
+  //       rear_feedback_mean * rear_wheel_radius * period.seconds(),
+  //       front_hinge_feedback_mean * period.seconds(),
+  //       rear_hinge_feedback_mean * period.seconds(), time);
+  //   }
+  // }
+
+  // tf2::Quaternion orientation;
+  // orientation.setRPY(0.0, 0.0, odometry_.getHeading());
+
+  // bool should_publish = false;
+  // try
+  // {
+  //   if (previous_publish_timestamp_ + publish_period_ < time)
+  //   {
+  //     previous_publish_timestamp_ += publish_period_;
+  //     should_publish = true;
+  //   }
+  // }
+  // catch (const std::runtime_error &)
+  // {
+  //   // Handle exceptions when the time source changes and initialize publish timestamp
+  //   previous_publish_timestamp_ = time;
+  //   should_publish = true;
+  // }
+
+  // if (should_publish)
+  // {
+  //   if (realtime_odometry_publisher_->trylock())
+  //   {
+  //     auto & odometry_message = realtime_odometry_publisher_->msg_;
+  //     odometry_message.header.stamp = time;
+  //     odometry_message.pose.pose.position.x = odometry_.getX();
+  //     odometry_message.pose.pose.position.y = odometry_.getY();
+  //     odometry_message.pose.pose.orientation.x = orientation.x();
+  //     odometry_message.pose.pose.orientation.y = orientation.y();
+  //     odometry_message.pose.pose.orientation.z = orientation.z();
+  //     odometry_message.pose.pose.orientation.w = orientation.w();
+  //     odometry_message.twist.twist.linear.x = odometry_.getLinear();
+  //     odometry_message.twist.twist.angular.z = odometry_.getAngular();
+  //     realtime_odometry_publisher_->unlockAndPublish();
+  //   }
+
+  //   if (params_.enable_odom_tf && realtime_odometry_transform_publisher_->trylock())
+  //   {
+  //     auto & transform = realtime_odometry_transform_publisher_->msg_.transforms.front();
+  //     transform.header.stamp = time;
+  //     transform.transform.translation.x = odometry_.getX();
+  //     transform.transform.translation.y = odometry_.getY();
+  //     transform.transform.rotation.x = orientation.x();
+  //     transform.transform.rotation.y = orientation.y();
+  //     transform.transform.rotation.z = orientation.z();
+  //     transform.transform.rotation.w = orientation.w();
+  //     realtime_odometry_transform_publisher_->unlockAndPublish();
+  //   }
+  // }
+
+  // auto & last_command = previous_commands_.back().twist;
+  // auto & second_to_last_command = previous_commands_.front().twist;
+  // limiter_linear_x_.limit(
+  //   linear_command_x, last_command.linear.x, second_to_last_command.linear.x, period.seconds());
+  // limiter_linear_y_.limit(
+  //   linear_command_y, last_command.linear.y, second_to_last_command.linear.y, period.seconds());
+  // limiter_angular_.limit(
+  //   angular_command, last_command.angular.z, second_to_last_command.angular.z, period.seconds());
+
+  // previous_commands_.pop();
+  // previous_commands_.emplace(command);
+
+  // // Publish limited velocity
+  // if (publish_limited_velocity_ && realtime_limited_velocity_publisher_->trylock())
+  // {
+  //   auto & limited_velocity_command = realtime_limited_velocity_publisher_->msg_;
+  //   limited_velocity_command.header.stamp = time;
+  //   limited_velocity_command.twist = command.twist;
+  //   realtime_limited_velocity_publisher_->unlockAndPublish();
+  // }
+
   // Compute wheels velocities:
   double theta1 = std::atan((linear_command_y + wheel_track*angular_command/2) / linear_command_x);
   double theta2 = std::atan((linear_command_y - wheel_track*angular_command/2) / linear_command_x);

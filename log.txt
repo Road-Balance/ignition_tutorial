@@ -1,0 +1,18 @@
+
+    <model name='mud_box'>
+      <pose frame=''>-6.13192 4.89997 0 0 -0 0</pose>
+    </model>
+
+    <model name='mud_box_0'>
+      <pose frame=''>1.90734 4.83104 0 0 -0 0</pose>
+    </model>
+
+    <model name='mud_box_1'>
+      <static>1</static>
+      <pose frame=''>-6.12792 -5.13998 0 0 -0 0</pose>
+    </model>
+
+    <model name='mud_box_2'>
+      <static>1</static>
+      <pose frame=''>1.85975 -5.14192 0 0 -0 0</pose>
+    </model>
