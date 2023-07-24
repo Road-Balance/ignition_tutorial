@@ -55,10 +55,7 @@ def generate_launch_description():
         ]
     )
 
-    # world_path = os.path.join(pkg_path, 'worlds', 'farm_with_one_crop_row.sdf')
-
     # Gazebo Sim
-    # maze.sdf, lab.sdf
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')
@@ -66,18 +63,58 @@ def generate_launch_description():
         launch_arguments={'gz_args': f'-r tomato_field.sdf'}.items(),
     )
 
+    transform_publisher = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        arguments = ["--x", "0.0",
+                    "--y", "0.0",
+                    "--z", "0.0",
+                    "--yaw", "0.0",
+                    "--pitch", "0.0",
+                    "--roll", "0.0",
+                    "--frame-id", "costar_husky_sensor_config_1/base_link",
+                    "--child-frame-id", "costar_husky_sensor_config_1"]
+    )
+
     # Gz - ROS Bridge
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+            '/model/costar_husky_sensor_config_1/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
+            '/model/costar_husky_sensor_config_1/pose@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
+            '/model/costar_husky_sensor_config_1/pose_static@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
+            '/model/costar_husky_sensor_config_1/cmd_vel_relay@geometry_msgs/msg/Twist@gz.msgs.Twist',
+            '/model/costar_husky_sensor_config_1/odometry@nav_msgs/msg/Odometry[gz.msgs.Odometry',
+            # '/model/costar_husky_sensor_config_1/camera_front/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            # '/model/costar_husky_sensor_config_1/camera_front/image@sensor_msgs/msg/Image[gz.msgs.Image',
+            # '/model/costar_husky_sensor_config_1/camera_front/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            # '/model/costar_husky_sensor_config_1/camera_front/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
+            # '/model/costar_husky_sensor_config_1/front_laser/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            # '/model/costar_husky_sensor_config_1/front_cliff_laser/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            # '/model/costar_husky_sensor_config_1/imu_sensor/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
+            # '/model/costar_husky_sensor_config_1/gas_detected@std_msgs/msg/Bool[gz.msgs.Boolean',
+
             # Clock (IGN -> ROS2)
-            '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
             # Joint states (IGN -> ROS2)
-            '/world/empty/model/rrbot/joint_state@sensor_msgs/msg/JointState@gz.msgs.Model',
+            # '/world/empty/model/rrbot/joint_state@sensor_msgs/msg/JointState@gz.msgs.Model',
         ],
         remappings=[
-            ('/world/empty/model/rrbot/joint_state', 'joint_states'),
+            ('/model/costar_husky_sensor_config_1/tf', '/tf'),
+            ('/model/costar_husky_sensor_config_1/pose', '/tf'),
+            ('/model/costar_husky_sensor_config_1/pose_static', '/tf_static'),
+            ('/model/costar_husky_sensor_config_1/cmd_vel_relay', '/cmd_vel'),
+            ('/model/costar_husky_sensor_config_1/odometry', '/odom'),
+            # ('/model/costar_husky_sensor_config_1/battery/linear_battery/state', '/battery'),
+            # ('/model/costar_husky_sensor_config_1/camera_front/camera_info', '/camera_front/camera_info'),
+            # ('/model/costar_husky_sensor_config_1/camera_front/image', '/camera_front/image_raw'),
+            # ('/model/costar_husky_sensor_config_1/camera_front/points', '/camera_front/points'),
+            # ('/model/costar_husky_sensor_config_1/camera_front/depth_image', '/camera_front/depth/image_raw'),
+            # ('/model/costar_husky_sensor_config_1/front_laser/scan/points', '/front_laser/scan/points'),
+            # ('/model/costar_husky_sensor_config_1/front_cliff_laser/scan', '/front_cliff_laser/scan'),
+            # ('/model/costar_husky_sensor_config_1/imu_sensor/imu', '/imu'),
+            # ('/model/costar_husky_sensor_config_1/gas_detected', '/gas_detected'),
         ],
         output='screen'
     )
@@ -88,6 +125,7 @@ def generate_launch_description():
             ign_resource_path,
             ign_model_path,
             gazebo,
-            # bridge,
+            bridge,
+            transform_publisher,
         ]
     )
