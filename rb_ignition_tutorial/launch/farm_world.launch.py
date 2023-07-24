@@ -43,7 +43,15 @@ def generate_launch_description():
         value=[
             os.path.join(pkg_turtlebot4_ignition_bringup, 'worlds'), ':' +
             os.path.join(pkg_path, 'models'), ':' +
+            os.path.join(pkg_path, 'models', 'tomato_field'), ':' +
             os.path.join(pkg_path, 'worlds'), ':'
+        ]
+    )
+
+    ign_model_path = SetEnvironmentVariable(
+        name='IGN_GAZEBO_MODEL_PATH',
+        value=[
+            os.path.join(pkg_path, 'models', 'tomato_field')
         ]
     )
 
@@ -55,7 +63,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')
         ),
-        launch_arguments={'gz_args': f'-r farm_with_one_crop_row.sdf'}.items(),
+        launch_arguments={'gz_args': f'-r tomato_field.sdf'}.items(),
     )
 
     # Gz - ROS Bridge
@@ -78,6 +86,7 @@ def generate_launch_description():
         [
             # Nodes and Launches
             ign_resource_path,
+            ign_model_path,
             gazebo,
             # bridge,
         ]
