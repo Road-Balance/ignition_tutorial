@@ -102,6 +102,27 @@
                 <static_publisher>true</static_publisher>
                 <static_update_frequency>100</static_update_frequency>
             </plugin>
+
+            <gazebo reference="camera/camera_link">
+                <sensor type="camera" name="rs200_camera">
+                    <update_rate>30.0</update_rate>
+                    <topic>rs200_camera</topic>
+                    <ignition_frame_id>camera/camera_link</ignition_frame_id>
+                    <camera_info_topic>camera_info</camera_info_topic>
+                    <camera>
+                        <horizontal_fov>1.047</horizontal_fov>
+                        <image>
+                            <width>640</width>
+                            <height>480</height>
+                            <format>R8G8B8</format>
+                        </image>
+                        <clip>
+                            <near>0.05</near>
+                            <far>8.0</far>
+                        </clip>
+                    </camera>
+                </sensor>
+            </gazebo>
         </include>
     </world>
 </sdf>

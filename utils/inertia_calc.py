@@ -46,3 +46,4 @@ def sphere_inertia(m, r):
 
     print_result(ixx, iyy, izz)
 
+sphere_inertia(0.01, 0.03)

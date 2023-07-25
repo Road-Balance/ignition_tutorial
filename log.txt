@@ -16,3 +16,34 @@
       <static>1</static>
       <pose frame=''>1.85975 -5.14192 0 0 -0 0</pose>
     </model>
+
+$ ign topic -l
+/clock
+/gazebo/resource_paths
+/gui/camera/pose
+/model/costar_husky_sensor_config_1/cmd_vel_relay
+/model/costar_husky_sensor_config_1/odometry
+/model/costar_husky_sensor_config_1/pose
+/model/costar_husky_sensor_config_1/pose_static
+/model/costar_husky_sensor_config_1/tf
+/stats
+/world/field/clock
+/world/field/dynamic_pose/info
+/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/camera_front/camera_info
+/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/camera_front/depth_image
+/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/camera_front/image
+/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/camera_front/points
+/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/front_cliff_laser/scan
+/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/front_cliff_laser/scan/points
+/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/front_laser/scan
+/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/front_laser/scan/points
+/world/field/pose/info
+/world/field/scene/deletion
+/world/field/scene/info
+/world/field/state
+/world/field/stats
+
+costar_husky_sensor_config_1
+costar_husky_sensor_config_1/base_link/camera_front
+costar_husky_sensor_config_1/base_link/camera_front
+costar_husky_sensor_config_1/base_link/front_cliff_laser

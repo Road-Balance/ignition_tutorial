@@ -32,6 +32,9 @@ ros2 launch rb_ignition_tutorial joint_states.launch.py
 ros2 launch rb_ignition_tutorial robot_description_publisher.launch.py 
 
 ros2 launch rb_ignition_tutorial tf_bridge.launch.py 
+
+ros2 launch rb_ignition_tutorial farm_world.launch.py
+ros2 launch rb_ignition_tutorial bridge.launch.py
 ```
 
 * Part2. CAD to Sim, BCR Bot

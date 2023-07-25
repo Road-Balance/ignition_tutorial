@@ -89,23 +89,6 @@ def generate_launch_description():
                     "--child-frame-id", "costar_husky_sensor_config_1/base_link/camera_front"]
     )
 
-    rqt_robot_steering = Node(
-        package='rqt_robot_steering',
-        executable='rqt_robot_steering',
-        name='rqt_robot_steering',
-        output='screen'
-    )
-
-    # Launch RViz
-    rviz_config_file = os.path.join(pkg_path, "rviz", "farm.rviz")
-    rviz2 = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="screen",
-        arguments=["-d", rviz_config_file],
-    )
-
     # Gz - ROS Bridge
     bridge = Node(
         package='ros_gz_bridge',
@@ -120,6 +103,19 @@ def generate_launch_description():
             '/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/camera_front/image@sensor_msgs/msg/Image[gz.msgs.Image',
             '/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/camera_front/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
             '/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/camera_front/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            
+            # '/model/costar_husky_sensor_config_1/camera_front/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            # '/model/costar_husky_sensor_config_1/camera_front/image@sensor_msgs/msg/Image[gz.msgs.Image',
+            # '/model/costar_husky_sensor_config_1/camera_front/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            # '/model/costar_husky_sensor_config_1/camera_front/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
+            # '/model/costar_husky_sensor_config_1/front_laser/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            # '/model/costar_husky_sensor_config_1/front_cliff_laser/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            # '/model/costar_husky_sensor_config_1/imu_sensor/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
+            # '/model/costar_husky_sensor_config_1/gas_detected@std_msgs/msg/Bool[gz.msgs.Boolean',
+
+            # Clock (IGN -> ROS2)
+            # Joint states (IGN -> ROS2)
+            # '/world/empty/model/rrbot/joint_state@sensor_msgs/msg/JointState@gz.msgs.Model',
         ],
         remappings=[
             ('/model/costar_husky_sensor_config_1/tf', '/tf'),
@@ -130,6 +126,16 @@ def generate_launch_description():
             ('/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/camera_front/image', '/camera_front/image_raw'),
             ('/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/camera_front/depth_image', '/camera_front/depth/image_raw'),
             ('/world/field/model/costar_husky_sensor_config_1/link/base_link/sensor/camera_front/points', '/camera_front/points'),
+
+            # ('/model/costar_husky_sensor_config_1/battery/linear_battery/state', '/battery'),
+            # ('/model/costar_husky_sensor_config_1/camera_front/camera_info', '/camera_front/camera_info'),
+            # ('/model/costar_husky_sensor_config_1/camera_front/image', '/camera_front/image_raw'),
+            # ('/model/costar_husky_sensor_config_1/camera_front/points', '/camera_front/points'),
+            # ('/model/costar_husky_sensor_config_1/camera_front/depth_image', '/camera_front/depth/image_raw'),
+            # ('/model/costar_husky_sensor_config_1/front_laser/scan/points', '/front_laser/scan/points'),
+            # ('/model/costar_husky_sensor_config_1/front_cliff_laser/scan', '/front_cliff_laser/scan'),
+            # ('/model/costar_husky_sensor_config_1/imu_sensor/imu', '/imu'),
+            # ('/model/costar_husky_sensor_config_1/gas_detected', '/gas_detected'),
         ],
         output='screen'
     )
@@ -137,13 +143,11 @@ def generate_launch_description():
     return LaunchDescription(
         [
             # Nodes and Launches
-            ign_resource_path,
-            ign_model_path,
-            gazebo,
+            # ign_resource_path,
+            # ign_model_path,
+            # gazebo,
             bridge,
             transform_publisher,
             transform_publisher2,
-            rqt_robot_steering,
-            rviz2
         ]
     )
